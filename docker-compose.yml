@@ -1,0 +1,75 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:11.5-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    depends_on: ['postgres']
+
+  mongo:
+    image: mongo
+    depends_on: ['redis']
+
+  app:
+    build: server
+    ports:
+      - '3333:3333'
+    command: yarn dev
+    environment:
+      - DB_HOST=postgres
+      - MONGO_URL=mongodb://mongo:27017/gobarber
+      - REDIS_HOST=redis
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - MAIL_USER=
+      - MAIL_PASS=
+    volumes:
+      - '.:/usr/app'
+    depends_on: ['mailhog']
+
+  queue:
+    build: server
+    command: yarn queue
+    environment:
+      - DB_HOST=postgres
+      - MONGO_URL=mongodb://mongo:27017/gobarber
+      - REDIS_HOST=redis
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - MAIL_USER=
+      - MAIL_PASS=
+    volumes:
+      - '.:/usr/app'
+    depends_on: ['mongo']
+
+  web:
+    build: web
+    command: yarn start
+    ports:
+      - 3000:3000
+
+  docs:
+    build: docs
+    command: yarn start
+    ports:
+      - 5000:5000
+    depends_on: ['app']
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+    depends_on: ['queue']
+
+volumes:
+  postgres_data:

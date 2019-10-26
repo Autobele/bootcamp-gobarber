@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "yarn serve src"
+  },
+  "dependencies": {
+    "serve": "^11.2.0"
+  }
+}

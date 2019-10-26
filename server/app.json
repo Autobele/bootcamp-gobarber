@@ -1,0 +1,72 @@
+{
+  "addons": [
+    "mongolab",
+    "heroku-postgresql",
+    "heroku-redis"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "APP_SECRET": {
+      "required": true
+    },
+    "APP_URL": {
+      "required": true
+    },
+    "DB_HOST": {
+      "required": true
+    },
+    "DB_NAME": {
+      "required": true
+    },
+    "DB_PASS": {
+      "required": true
+    },
+    "DB_USER": {
+      "required": true
+    },
+    "MAIL_HOST": {
+      "required": true
+    },
+    "MAIL_PASS": {
+      "required": true
+    },
+    "MAIL_PORT": {
+      "required": true
+    },
+    "MAIL_USER": {
+      "required": true
+    },
+    "MONGO_URL": {
+      "required": true
+    },
+    "MONGODB_URI": {
+      "required": true
+    },
+    "NODE_ENV": {
+      "required": true
+    },
+    "PORT": {
+      "required": true
+    },
+    "REDIS_URL": {
+      "required": true
+    },
+    "SENTRY_DSN": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "bootcamp-gobarber-backend",
+  "scripts": {
+    "postdeploy": "npx sequelize db:migrate"
+  },
+  "stack": "heroku-18"
+}
