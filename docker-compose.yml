@@ -2,6 +2,7 @@ version: '3'
 
 services:
   postgres:
+    container_name: 'postgres-db'
     image: postgres:11.5-alpine
     ports:
       - '5432:5432'
@@ -13,32 +14,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
+    container_name: 'redis-db'
     image: redis:alpine
     depends_on: ['postgres']
 
   mongo:
+    container_name: 'mongodb-db'
     image: mongo
     depends_on: ['redis']
 
-  app:
-    build: server
-    ports:
-      - '3333:3333'
-    command: yarn dev
-    environment:
-      - DB_HOST=postgres
-      - MONGO_URL=mongodb://mongo:27017/gobarber
-      - REDIS_HOST=redis
-      - MAIL_HOST=mailhog
-      - MAIL_PORT=1025
-      - MAIL_USER=
-      - MAIL_PASS=
-    volumes:
-      - '.:/usr/app'
-    depends_on: ['mailhog']
-
   queue:
-    build: server
+    container_name: 'beequeue-service'
+    build: backend
     command: yarn queue
     environment:
       - DB_HOST=postgres
@@ -49,27 +36,49 @@ services:
       - MAIL_USER=
       - MAIL_PASS=
     volumes:
-      - '.:/usr/app'
+      - '.:/usr/queue'
     depends_on: ['mongo']
 
-  web:
-    build: web
-    command: yarn start
-    ports:
-      - 3000:3000
-
-  docs:
-    build: docs
-    command: yarn start
-    ports:
-      - 5000:5000
-    depends_on: ['app']
-
   mailhog:
+    container_name: 'mailhog-service'
     image: mailhog/mailhog
     ports:
       - 8025:8025
     depends_on: ['queue']
+
+  server:
+    container_name: 'backend-server'
+    build: backend
+    command: yarn dev
+    ports:
+      - 3333:3333
+    environment:
+      - DB_HOST=postgres
+      - MONGO_URL=mongodb://mongo:27017/gobarber
+      - REDIS_HOST=redis
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - MAIL_USER=
+      - MAIL_PASS=
+    volumes:
+      - '.:/usr/server'
+    depends_on: ['mailhog']
+
+  frontend:
+    container_name: 'frontend-application'
+    build: frontend
+    command: yarn start
+    ports:
+      - 3000:3000
+    volumes:
+      - '.:/usr/frontend'
+
+  documentation:
+    container_name: 'api-documentation-application'
+    build: documentation
+    command: yarn start
+    ports:
+      - 5000:5000
 
 volumes:
   postgres_data:

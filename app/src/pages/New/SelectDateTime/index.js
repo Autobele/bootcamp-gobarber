@@ -17,7 +17,7 @@ export default function SelectDateTime({ navigation }) {
 
   useEffect(() => {
     async function loadAvailable() {
-      const response = await api.get(`providers/${provider.id}/available`, {
+      const response = await api.get(`providers/${provider.id}/avaiable`, {
         params: {
           date: date.getTime(),
         },
@@ -47,8 +47,7 @@ export default function SelectDateTime({ navigation }) {
           renderItem={({ item }) => (
             <Hour
               onPress={() => handleSelectHour(item.value)}
-              enabled={item.available}
-            >
+              enabled={item.available}>
               <Title>{item.time}</Title>
             </Hour>
           )}
@@ -64,8 +63,7 @@ SelectDateTime.navigationOptions = ({ navigation }) => ({
     <TouchableOpacity
       onPress={() => {
         navigation.goBack();
-      }}
-    >
+      }}>
       <Icon name="chevron-left" size={20} color="#FFF" />
     </TouchableOpacity>
   ),
